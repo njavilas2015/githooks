@@ -11,8 +11,19 @@ import (
 type hooksConfig struct {
 	PreCommit  string `json:"pre-commit"`
 	PostCommit string `json:"post-commit"`
-	PrePush    string `json:"pre-push"`
-	PostPush   string `json:"post-push"`
+
+	CommitMsg string `json:"commit-msg"`
+
+	PreRebase  string `json:"pre-rebase"`
+	PostRebase string `json:"post-rebase"`
+
+	PostCheckout string `json:"post-checkout"`
+
+	PostMerge string `json:"post-merge"`
+
+	PostRewrite string `json:"post-rewrite"`
+
+	PrePush string `json:"pre-push"`
 }
 
 func loadHooksConfig(filename string) (*hooksConfig, error) {
@@ -48,32 +59,34 @@ func updateHookInConfig(configFile, scriptFile string, hookName string) error {
 		return fmt.Errorf("error reading configuration file %s: %v", configFile, err)
 	}
 
-	var config hooksConfig
+	var hooks hooksConfig
 
-	err = json.Unmarshal(data, &config)
+	err = json.Unmarshal(data, &hooks)
 
 	if err != nil {
 		return fmt.Errorf("error parsing configuration JSON: %v", err)
 	}
 
-	var updateField *string
+	getHookField := map[string]func() *string{
+		"pre-commit":    func() *string { return &hooks.PreCommit },
+		"post-commit":   func() *string { return &hooks.PostCommit },
+		"commit-msg":    func() *string { return &hooks.CommitMsg },
+		"pre-rebase":    func() *string { return &hooks.PreRebase },
+		"post-rebase":   func() *string { return &hooks.PostRebase },
+		"post-checkout": func() *string { return &hooks.PostCheckout },
+		"post-merge":    func() *string { return &hooks.PostMerge },
+		"post-rewrite":  func() *string { return &hooks.PostRewrite },
+		"pre-push":      func() *string { return &hooks.PrePush },
+	}
 
-	switch hookName {
-	case "pre-commit":
-		updateField = &config.PreCommit
-	case "post-commit":
-		updateField = &config.PostCommit
-	case "pre-push":
-		updateField = &config.PrePush
-	case "post-push":
-		updateField = &config.PostPush
-	default:
+	if getField, exists := getHookField[hookName]; exists {
+		updateField := getField()
+		*updateField = string(scriptContent)
+	} else {
 		return fmt.Errorf("unrecognized filename for hook: %s", scriptFile)
 	}
 
-	*updateField = string(scriptContent)
-
-	updatedData, err := json.MarshalIndent(config, "", "  ")
+	updatedData, err := json.MarshalIndent(hooks, "", "  ")
 
 	if err != nil {
 		return fmt.Errorf("error serializing updated JSON: %v", err)
@@ -84,8 +97,6 @@ func updateHookInConfig(configFile, scriptFile string, hookName string) error {
 	if err != nil {
 		return fmt.Errorf("error writing configuration file %s: %v", configFile, err)
 	}
-
-	fmt.Println("The configuration file has been updated with the content of the script:", scriptFile)
 
 	return nil
 }
@@ -122,8 +133,13 @@ func checkAndUpdateHooks(configFile string, hookDir string) error {
 	hookFiles := []string{
 		"pre-commit.sh",
 		"post-commit.sh",
+		"commit-msg.sh",
+		"pre-rebase.sh",
+		"post-rebase.sh",
+		"post-checkout.sh",
+		"post-merge.sh",
+		"post-rewrite.sh",
 		"pre-push.sh",
-		"post-push.sh",
 	}
 
 	for _, hookFile := range hookFiles {
@@ -132,7 +148,7 @@ func checkAndUpdateHooks(configFile string, hookDir string) error {
 
 		if _, err := os.Stat(hookPath); err == nil {
 
-			fmt.Printf("The file %s exists. Updating configuration....\n", hookPath)
+			fmt.Printf("Apply %s \n", hookPath)
 
 			hookName := strings.TrimSuffix(hookFile, ".sh")
 
@@ -214,10 +230,15 @@ func main() {
 	}
 
 	hooks := map[string]string{
-		"pre-commit":  config.PreCommit,
-		"post-commit": config.PostCommit,
-		"pre-push":    config.PrePush,
-		"post-push":   config.PostPush,
+		"pre-commit":    config.PreCommit,
+		"post-commit":   config.PostCommit,
+		"commit-msg":    config.CommitMsg,
+		"pre-rebase":    config.PreRebase,
+		"post-rebase":   config.PostRebase,
+		"post-checkout": config.PostCheckout,
+		"post-merge":    config.PostMerge,
+		"post-rewrite":  config.PostRewrite,
+		"pre-push":      config.PrePush,
 	}
 
 	for hookName, hookContent := range hooks {
