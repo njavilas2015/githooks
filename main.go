@@ -183,9 +183,8 @@ func initializeConfigFile(configFile string) error {
 
 func main() {
 
-	// Obtener el directorio desde los argumentos de la línea de comandos (por defecto es el directorio actual)
 	if len(os.Args) < 2 {
-		fmt.Println("Se debe proporcionar un directorio para los archivos de hook.")
+		fmt.Println("A directory must be provided for the hook files.")
 		return
 	}
 
