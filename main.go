@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -33,7 +34,7 @@ func loadHooksConfig(filename string) (*HooksConfig, error) {
 	return &config, nil
 }
 
-func updateHookInConfig(configFile, scriptFile string) error {
+func updateHookInConfig(configFile, scriptFile string, hookName string) error {
 
 	scriptContent, err := os.ReadFile(scriptFile)
 
@@ -48,12 +49,12 @@ func updateHookInConfig(configFile, scriptFile string) error {
 	}
 
 	var config HooksConfig
+
 	err = json.Unmarshal(data, &config)
+
 	if err != nil {
 		return fmt.Errorf("error parsing configuration JSON: %v", err)
 	}
-
-	hookName := strings.TrimSuffix(scriptFile, ".sh")
 
 	var updateField *string
 
@@ -116,7 +117,7 @@ func createGitHook(hookName string, hookContent string) error {
 	return nil
 }
 
-func checkAndUpdateHooks(configFile string) error {
+func checkAndUpdateHooks(configFile string, hookDir string) error {
 
 	hookFiles := []string{
 		"pre-commit.sh",
@@ -127,34 +128,83 @@ func checkAndUpdateHooks(configFile string) error {
 
 	for _, hookFile := range hookFiles {
 
-		if _, err := os.Stat(hookFile); err == nil {
+		hookPath := filepath.Join(hookDir, hookFile)
 
-			fmt.Printf("The file %s exists. Updating configuration....\n", hookFile)
+		if _, err := os.Stat(hookPath); err == nil {
 
-			err := updateHookInConfig(configFile, hookFile)
+			fmt.Printf("The file %s exists. Updating configuration....\n", hookPath)
+
+			hookName := strings.TrimSuffix(hookFile, ".sh")
+
+			err := updateHookInConfig(configFile, hookPath, hookName)
 
 			if err != nil {
-				return fmt.Errorf("error updating configuration for %s: %v", hookFile, err)
+				return fmt.Errorf("error updating configuration for %s: %v", hookPath, err)
 			}
 
 		} else if os.IsNotExist(err) {
 
 		} else {
-			return fmt.Errorf("error when verifying the existence of %s: %v", hookFile, err)
+			return fmt.Errorf("error when verifying the existence of %s: %v", hookPath, err)
 		}
 	}
 
 	return nil
 }
 
+func initializeConfigFile(configFile string) error {
+
+	if _, err := os.Stat(configFile); err == nil {
+		return nil
+	} else if os.IsNotExist(err) {
+
+		config := HooksConfig{}
+
+		data, err := json.MarshalIndent(config, "", "  ")
+
+		if err != nil {
+			return fmt.Errorf("error serializing configuration file: %v", err)
+		}
+
+		err = os.WriteFile(configFile, data, 0644)
+
+		if err != nil {
+			return fmt.Errorf("error writing configuration file %s: %v", configFile, err)
+		}
+
+		fmt.Println("Configuration file created successfully:", configFile)
+
+		return nil
+
+	} else {
+		return fmt.Errorf("error verifying file existence %s: %v", configFile, err)
+	}
+}
+
 func main() {
+
+	// Obtener el directorio desde los argumentos de la línea de comandos (por defecto es el directorio actual)
+	if len(os.Args) < 2 {
+		fmt.Println("Se debe proporcionar un directorio para los archivos de hook.")
+		return
+	}
+
+	hookDir := os.Args[1]
 
 	configFile := "hooks_config.json"
 
-	err := checkAndUpdateHooks(configFile)
+	err := initializeConfigFile(configFile)
+
+	if err != nil {
+		fmt.Println("Error initializing configuration file:", err)
+		return
+	}
+
+	err = checkAndUpdateHooks(configFile, hookDir)
 
 	if err != nil {
 		fmt.Printf("Error verifying and updating hooks: %v\n", err)
+		return
 	}
 
 	config, err := loadHooksConfig(configFile)

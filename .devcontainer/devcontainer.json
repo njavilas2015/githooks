@@ -1,0 +1,23 @@
+{
+    "name": "Go Dev Container",
+    "build": {
+      "dockerfile": "Dockerfile"
+    },
+    "settings": {
+      "go.gopath": "/go",
+      "go.goroot": "/usr/local/go"
+    },
+    "extensions": [
+      "golang.go",
+      "ms-vscode-remote.remote-containers"
+    ],
+    "postCreateCommand": "go mod tidy",
+    "runArgs": [
+      "--user", "vscode"
+    ],
+    "mounts": [
+      "source=${workspaceFolder},target=/workspace,type=bind"
+    ],
+    "remoteUser": "vscode"
+  }
+  
