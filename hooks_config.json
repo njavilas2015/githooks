@@ -1,0 +1,6 @@
+{
+    "pre-commit": "#!/bin/sh\necho \"Running pre-commit hook...\"\n# Add your commands here",
+    "post-commit": "#!/bin/sh\necho \"Running post-commit hook...\"\n# Add your commands here",
+    "pre-push": "#!/bin/sh\necho \"Running pre-push hook...\"\n# Add your commands here",
+    "post-push": "#!/bin/sh\necho \"Running post-push hook...\"\n# Add your commands here"
+}
