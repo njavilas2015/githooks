@@ -1,5 +1,5 @@
 {
-  "pre-commit": "#!/bin/bash\necho \"🔄 Running pre-commit hook...\"\n# Formatea el código Go\ngo fmt ./...\n# Verifica estilo de código\ngolint ./...\n# Realiza chequeos estáticos en el código\ngo vet ./...\n# Ejecuta las pruebas\ngo test ./...",
+  "pre-commit": "#!/bin/bash\necho \"🔄 Running pre-commit hook...\"\n# Formatea el código Go\ngo fmt .\n# Verifica estilo de código\ngolint .\n# Realiza chequeos estáticos en el código\ngo vet .\n# Ejecuta las pruebas\ngo test .",
   "post-commit": "#!/bin/bash\necho \"🔄 Running post-commit hook...\"",
   "pre-push": "#!/bin/bash\necho \"🔄 Running pre-push hook...\"\n# Verifica si el código está correctamente formateado\ngo fmt ./...\n# Realiza chequeos estáticos en el código\ngolint ./...\n# Realiza análisis estático de posibles errores\ngo vet ./...\n# Ejecuta las pruebas\ngo test ./...\nif [ $? -ne 0 ]; then\n  echo \"❌ Las pruebas fallaron. Por favor, revisa los errores antes de hacer push.\"\n  exit 1\nfi",
   "post-push": "#!/bin/bash\necho \"🔄 Running post-push hook...\""
