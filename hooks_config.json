@@ -1,6 +1,6 @@
 {
-    "pre-commit": "#!/bin/sh\necho \"Running pre-commit hook...\"\n# Add your commands here",
-    "post-commit": "#!/bin/sh\necho \"Running post-commit hook...\"\n# Add your commands here",
-    "pre-push": "#!/bin/sh\necho \"Running pre-push hook...\"\n# Add your commands here",
-    "post-push": "#!/bin/sh\necho \"Running post-push hook...\"\n# Add your commands here"
+  "pre-commit": "#!/bin/bash\necho \"🔄 Running pre-commit hook...\"\nblack .\nisort .\nflake8 .\npython manage.py check",
+  "post-commit": "#!/bin/bash\necho \"🔄 Running post-commit hook...\"",
+  "pre-push": "#!/bin/bash\necho \"🔄 Running pre-push hook...\"\nif ! python manage.py makemigrations --check --dry-run; then\n  echo \"❌ Hay migraciones pendientes. Por favor, créalas antes de hacer push.\"\n  exit 1\nfi\npytest --cov=myapp --cov-report=term-missing\nif [ $? -ne 0 ]; then\n  echo \"❌ Las pruebas fallaron. Por favor, revisa los errores.\"\n  exit 1\nfi",
+  "post-push": "#!/bin/bash\necho \"🔄 Running post-push hook...\""
 }
