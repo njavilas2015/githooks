@@ -8,14 +8,14 @@ import (
 	"strings"
 )
 
-type HooksConfig struct {
+type hooksConfig struct {
 	PreCommit  string `json:"pre-commit"`
 	PostCommit string `json:"post-commit"`
 	PrePush    string `json:"pre-push"`
 	PostPush   string `json:"post-push"`
 }
 
-func loadHooksConfig(filename string) (*HooksConfig, error) {
+func loadHooksConfig(filename string) (*hooksConfig, error) {
 
 	data, err := os.ReadFile(filename)
 
@@ -23,7 +23,7 @@ func loadHooksConfig(filename string) (*HooksConfig, error) {
 		return nil, fmt.Errorf("error reading file %s: %v", filename, err)
 	}
 
-	var config HooksConfig
+	var config hooksConfig
 
 	err = json.Unmarshal(data, &config)
 
@@ -48,7 +48,7 @@ func updateHookInConfig(configFile, scriptFile string, hookName string) error {
 		return fmt.Errorf("error reading configuration file %s: %v", configFile, err)
 	}
 
-	var config HooksConfig
+	var config hooksConfig
 
 	err = json.Unmarshal(data, &config)
 
@@ -158,7 +158,7 @@ func initializeConfigFile(configFile string) error {
 		return nil
 	} else if os.IsNotExist(err) {
 
-		config := HooksConfig{}
+		config := hooksConfig{}
 
 		data, err := json.MarshalIndent(config, "", "  ")
 
