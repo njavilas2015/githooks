@@ -14,6 +14,7 @@ test:
 
 clean:
 	rm -f $(BINARY_NAME)
+	rm -f hooks_config.json
 
 run: build
 	./$(BINARY_NAME)
