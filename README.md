@@ -2,27 +2,27 @@
 
 ## Instalación
 
-Para instalar `gohtpasswd`, puedes descargar el binario desde el siguiente enlace:
+Para instalar `githooks`, puedes descargar el binario desde el siguiente enlace:
 
-- [Descargar gohtpasswd](https://github.com/njavilas2015/gohtpasswd/releases/download/1.0.1/gohtpasswd)
+- [Descargar githooks](https://github.com/njavilas2015/githooks/releases/download/1.0.1/githooks)
 
 ```bash
-curl -s https://api.github.com/repos/njavilas2015/gohtpasswd/releases/latest | jq -r .assets[0].browser_download_url | wget -i -
+curl -s https://api.github.com/repos/njavilas2015/githooks/releases/latest | jq -r .assets[0].browser_download_url | wget -i -
 ```
 
 
 Después de descargar, asegúrate de que el binario sea ejecutable y mueve el archivo a un directorio en tu `PATH`:
 
 ```bash
-chmod +x gohtpasswd
-sudo mv gohtpasswd /usr/local/bin/
+chmod +x githooks
+sudo mv githooks /usr/local/bin/
 ```
 
 ## Uso
-Para usar `gohtpasswd`, puedes ejecutar el siguiente comando en la terminal:
+Para usar `githooks`, puedes ejecutar el siguiente comando en la terminal:
 
 ```bash
-gohtpasswd --username njavilas --password holaconfig --print
+githooks path/script
 ```
 
 ## Hooks del Lado del Cliente
@@ -46,6 +46,10 @@ pre-applypatch: Se ejecuta antes de aplicar un parche, útil para ejecutar prueb
 - [x] **pre-push**: Se ejecuta antes de un push, permite realizar verificaciones o cancelar el push si no se cumplen ciertas condiciones.
 - [] **pre-auto-gc**: Se ejecuta antes de que Git realice una recolección de basura automática, útil para limpiar o preparar datos.
 - [x] **post-rewrite**: Se ejecuta después de comandos que reescriben el historial (como git commit --amend y git rebase), permite realizar acciones en los commits reescritos.
+
+## Build
+
+go build -o githooks
 
 ## Contacto
 Si tienes alguna pregunta o necesitas soporte, no dudes en contactarme:
