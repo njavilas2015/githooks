@@ -160,6 +160,22 @@ func checkAndUpdateHooks(configFile string, hookDir string) error {
 
 		} else if os.IsNotExist(err) {
 
+			data := fmt.Sprintf("#!/bin/bash\necho \"🔄 Running %s hook...\"", hookFile)
+
+			hookFile, err := os.OpenFile(hookPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+
+			if err != nil {
+				return fmt.Errorf("error creating the hook %v: %v", hookFile, err)
+			}
+
+			defer hookFile.Close()
+
+			_, err = hookFile.WriteString(data)
+
+			if err != nil {
+				return fmt.Errorf("error writing to hook %v: %v", hookFile, err)
+			}
+
 		} else {
 			return fmt.Errorf("error when verifying the existence of %s: %v", hookPath, err)
 		}
